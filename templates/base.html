@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Research-to-Project Radar{% endblock %}</title>
+    <!-- Modern Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-satellite-dish-radial fa-spin-pulse"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Radar</h1>
+                    <span>Research-to-Project</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>Discovery Radar</span>
+                </a>
+                <a href="/saved" class="nav-item {% if request.path == '/saved' %}active{% endif %}">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span>Saved Radar</span>
+                </a>
+                <a href="/projects" class="nav-item {% if request.path == '/projects' %}active{% endif %}">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>Project Clusters</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="feed-health-toggle" id="feedHealthBtn">
+                    <i class="fa-solid fa-server"></i>
+                    <span>Feed Health Status</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Body Content -->
+        <main class="main-content">
+            <!-- Header bar -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h2>{% block page_title %}Radar Hub{% endblock %}</h2>
+                    <p class="header-desc">{% block page_description %}Monitor research, updates and build ideas.{% endblock %}</p>
+                </div>
+                <div class="header-right">
+                    <div class="refresh-indicator" id="refreshIndicator" style="display: none;">
+                        <span class="pulse-dot"></span>
+                        <span id="refreshText">Refreshing feeds...</span>
+                    </div>
+                    <button class="btn btn-primary" id="refreshBtn">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Sync Feeds</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Inner content block -->
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Feed Health Modal -->
+    <div class="modal-backdrop" id="feedHealthModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gears text-gradient"></i> Feed Ingestion Health</h3>
+                <button class="modal-close" id="closeFeedHealthBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="health-summary">
+                    <p>Track the health, success times, and status of ArXiv and cloud release note pipelines.</p>
+                </div>
+                <div class="feed-list" id="feedHealthList">
+                    <!-- Loaded dynamically via JS -->
+                    <div class="loader-placeholder"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading health stats...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global scripts -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

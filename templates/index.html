@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Discovery Radar - Research-to-Project Radar{% endblock %}
+{% block page_title %}Discovery Radar{% endblock %}
+{% block page_description %}Explore and filter the latest AI research and cloud engineering updates.{% endblock %}
+
+{% block content %}
+<div class="radar-layout">
+    <!-- Filters Panel -->
+    <aside class="filters-panel glass">
+        <div class="filters-header">
+            <h3><i class="fa-solid fa-sliders"></i> Filters</h3>
+            <button class="btn-clear" id="clearFiltersBtn">Reset</button>
+        </div>
+        
+        <div class="filter-group">
+            <label for="searchFilter">Search Query</label>
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchFilter" placeholder="Title, abstract, author...">
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label for="scoreFilter">Minimum Signal Score</label>
+            <select id="scoreFilter">
+                <option value="">All Scores</option>
+                <option value="5">🔥 5/5 - Directly Actionable AI/RAG</option>
+                <option value="4">⭐ 4/5 - Useful AI/Data Engineering</option>
+                <option value="3">⚡ 3/5 - Maybe Relevant</option>
+                <option value="2">💤 2/5 - Low Priority</option>
+                <option value="1">🗑️ 1/5 - Ignore</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="dateFilter">Date Range</label>
+            <select id="dateFilter">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">Past 7 Days</option>
+                <option value="month">Past 30 Days</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="sourceFilter">Source Feed</label>
+            <select id="sourceFilter">
+                <option value="">All Sources</option>
+                <!-- Filled dynamically by script -->
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="arxivCatFilter">arXiv Category</label>
+            <select id="arxivCatFilter">
+                <option value="">All Categories</option>
+                <option value="cs.AI">cs.AI (Artificial Intelligence)</option>
+                <option value="cs.CL">cs.CL (Computation & Language)</option>
+                <option value="cs.LG">cs.LG (Machine Learning)</option>
+                <option value="cs.IR">cs.IR (Information Retrieval)</option>
+                <option value="cs.DB">cs.DB (Databases)</option>
+                <option value="cs.SE">cs.SE (Software Engineering)</option>
+                <option value="cs.DC">cs.DC (Distributed/Parallel)</option>
+                <option value="cs.CR">cs.CR (Cryptography/Security)</option>
+                <option value="cs.MA">cs.MA (Multiagent Systems)</option>
+                <option value="cs.RO">cs.RO (Robotics)</option>
+                <option value="cs.CV">cs.CV (Computer Vision)</option>
+                <option value="stat.ML">stat.ML (Machine Learning Stats)</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Radar Focus Areas</label>
+            <div class="checkbox-list">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Agentic AI">
+                    <span class="checkbox-label">Agentic AI</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="RAG / Retrieval">
+                    <span class="checkbox-label">RAG & Retrieval</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="LLM Evaluation">
+                    <span class="checkbox-label">LLM Evaluation</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="MLOps">
+                    <span class="checkbox-label">MLOps</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Cloud Infrastructure">
+                    <span class="checkbox-label">Cloud Infrastructure</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Data Engineering">
+                    <span class="checkbox-label">Data Engineering</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="BigQuery / Analytics">
+                    <span class="checkbox-label">BigQuery / Analytics</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Vertex AI / Google Cloud AI">
+                    <span class="checkbox-label">Vertex AI / Google Cloud AI</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Security / IAM / Governance">
+                    <span class="checkbox-label">Security & Governance</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Research Paper">
+                    <span class="checkbox-label">Research Papers</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="category" value="Product Release Note">
+                    <span class="checkbox-label">Product Release Notes</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-group-toggles">
+            <label class="checkbox-container toggle">
+                <input type="checkbox" id="showIgnoredFilter">
+                <span class="checkbox-label">Show Ignored Items</span>
+            </label>
+        </div>
+    </aside>
+
+    <!-- Radar Feed List -->
+    <section class="radar-feed">
+        <div class="feed-summary-bar glass">
+            <div>
+                Found <strong id="itemCount">0</strong> items in cache
+            </div>
+            <div class="sort-selector-wrapper">
+                <label for="sortBySelect"><i class="fa-solid fa-arrow-down-wide-narrow"></i> Sort by:</label>
+                <select id="sortBySelect" class="sort-select">
+                    <option value="date" selected>Latest Published</option>
+                    <option value="score">Highest Signal</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="radarItemsList" class="items-grid">
+            <!-- Items loaded dynamically -->
+            <div class="loader-placeholder">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>Loading Radar Feed...</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Social Share & Project Generator Modal -->
+<div class="modal-backdrop" id="radarActionModal" style="display: none;">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-bolt text-gradient"></i> Action Hub</h3>
+            <button class="modal-close" id="closeActionModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body action-hub-body">
+            <div class="modal-nav">
+                <button class="tab-btn active" data-tab="tab-project">Project Generator</button>
+                <button class="tab-btn" data-tab="tab-social">Social Media Post</button>
+                <button class="tab-btn" data-tab="tab-summary">Technical Summary</button>
+            </div>
+
+            <!-- TAB: Project Generator -->
+            <div class="tab-content" id="tab-project">
+                <div class="project-generator-view">
+                    <p class="section-intro">Convert this high-signal update into a concrete project for your resume and portfolio.</p>
+                    <div id="projectSpinner" class="loader-placeholder" style="display: none;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Generating Project Template...
+                    </div>
+                    <div id="projectFormContainer">
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label>Proposed Project Title</label>
+                                <input type="text" id="projTitle">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>Difficulty</label>
+                                <select id="projDifficulty">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Why It Matters</label>
+                            <textarea id="projWhy" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>MVP Scope</label>
+                            <textarea id="projScope" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tools & Stack</label>
+                            <input type="text" id="projTools">
+                        </div>
+                        <div class="form-group">
+                            <label>Resume Bullet Draft</label>
+                            <textarea id="projResume" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Cluster Category</label>
+                            <select id="projCluster">
+                                <option value="Agent evaluation systems">Agent evaluation systems</option>
+                                <option value="RAG and retrieval benchmarks">RAG and retrieval benchmarks</option>
+                                <option value="Vertex AI / BigQuery ML demos">Vertex AI / BigQuery ML demos</option>
+                                <option value="Cloud Run agent deployment">Cloud Run agent deployment</option>
+                                <option value="AI governance and safety">AI governance and safety</option>
+                                <option value="LLM fine-tuning and distillation">LLM fine-tuning and distillation</option>
+                                <option value="Research paper reproduction">Research paper reproduction</option>
+                                <option value="Data engineering for AI systems">Data engineering for AI systems</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="saveProjectBtn">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Project to Hub
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Social Media Post -->
+            <div class="tab-content" id="tab-social" style="display: none;">
+                <div class="social-generator-view">
+                    <div class="social-box">
+                        <div class="social-header">
+                            <h4><i class="fa-brands fa-x-twitter"></i> X (Twitter) Post <span class="tip-label">Technical & short</span></h4>
+                            <button class="btn btn-sm btn-secondary copy-btn" data-target="socialXText"><i class="fa-solid fa-copy"></i> Copy</button>
+                        </div>
+                        <textarea id="socialXText" rows="4" readonly></textarea>
+                    </div>
+                    <div class="social-box">
+                        <div class="social-header">
+                            <h4><i class="fa-brands fa-linkedin"></i> LinkedIn Post <span class="tip-label">Professional</span></h4>
+                            <button class="btn btn-sm btn-secondary copy-btn" data-target="socialLinkedInText"><i class="fa-solid fa-copy"></i> Copy</button>
+                        </div>
+                        <textarea id="socialLinkedInText" rows="6" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Technical Summary -->
+            <div class="tab-content" id="tab-summary" style="display: none;">
+                <div class="summary-view">
+                    <div class="social-header">
+                        <h4>Technical Summary & Highlights</h4>
+                        <button class="btn btn-sm btn-secondary copy-btn" data-target="techSummaryText"><i class="fa-solid fa-copy"></i> Copy</button>
+                    </div>
+                    <textarea id="techSummaryText" rows="12" readonly class="code-font"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initRadarFeed();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Project Clusters - Research-to-Project Radar{% endblock %}
+{% block page_title %}Project Clusters{% endblock %}
+{% block page_description %}Grouped portfolio project roadmaps, blueprints, and resume bullets.{% endblock %}
+
+{% block content %}
+<div class="projects-container">
+    <div class="project-clusters-grid" id="projectClustersContainer">
+        <!-- Loaded dynamically via JS -->
+        <div class="loader-placeholder">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <p>Analyzing and Clustering Portfolio Projects...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal-backdrop" id="editProjectModal" style="display: none;">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-pen-to-square text-gradient"></i> Edit Project Blueprint</h3>
+            <button class="modal-close" id="closeEditProjectModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editProjItemId">
+            <div class="form-row">
+                <div class="form-group flex-2">
+                    <label>Project Title</label>
+                    <input type="text" id="editProjTitle">
+                </div>
+                <div class="form-group flex-1">
+                    <label>Difficulty</label>
+                    <select id="editProjDifficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Why It Matters</label>
+                <textarea id="editProjWhy" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>MVP Scope</label>
+                <textarea id="editProjScope" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tools & Tech Stack</label>
+                <input type="text" id="editProjTools">
+            </div>
+            <div class="form-group">
+                <label>Resume Bullet Draft</label>
+                <textarea id="editProjResume" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Project Cluster Category</label>
+                <select id="editProjCluster">
+                    <option value="Agent evaluation systems">Agent evaluation systems</option>
+                    <option value="RAG and retrieval benchmarks">RAG and retrieval benchmarks</option>
+                    <option value="Vertex AI / BigQuery ML demos">Vertex AI / BigQuery ML demos</option>
+                    <option value="Cloud Run agent deployment">Cloud Run agent deployment</option>
+                    <option value="AI governance and safety">AI governance and safety</option>
+                    <option value="LLM fine-tuning and distillation">LLM fine-tuning and distillation</option>
+                    <option value="Research paper reproduction">Research paper reproduction</option>
+                    <option value="Data engineering for AI systems">Data engineering for AI systems</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="saveEditProjectBtn">
+                <i class="fa-solid fa-floppy-disk"></i> Update Blueprint
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initProjectsPage();
+    });
+</script>
+{% endblock %}
