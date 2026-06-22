@@ -1,3 +1,35 @@
+// Theme Toggle & Persistence
+(function() {
+    const savedTheme = localStorage.getItem('radar-theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeToggleIcon');
+        
+        // Sync icon on load
+        if (document.body.classList.contains('light-theme')) {
+            if (themeIcon) {
+                themeIcon.className = 'fa-solid fa-moon';
+            }
+        }
+        
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('radar-theme', isLight ? 'light' : 'dark');
+                
+                if (themeIcon) {
+                    themeIcon.className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+                }
+            });
+        }
+    });
+})();
+
 // Global State
 let currentItemIdForAction = null;
 let feedsData = [];
