@@ -46,6 +46,9 @@ function initRadarFeed() {
         const sortBySelect = document.getElementById('sortBySelect');
         const sortBy = sortBySelect ? sortBySelect.value : 'date';
         
+        const sortOrderSelect = document.getElementById('sortOrderSelect');
+        const sortOrder = sortOrderSelect ? sortOrderSelect.value : 'desc';
+        
         const params = new URLSearchParams();
         if (searchFilter.value) params.append('search', searchFilter.value);
         if (sourceFilter.value) params.append('source', sourceFilter.value);
@@ -54,6 +57,7 @@ function initRadarFeed() {
         if (scoreFilter.value) params.append('min_score', scoreFilter.value);
         if (showIgnoredFilter.checked) params.append('show_ignored', 'true');
         params.append('sort_by', sortBy);
+        params.append('sort_order', sortOrder);
         
         const cats = getCheckedCategories();
         cats.forEach(c => params.append('category', c));
@@ -94,7 +98,9 @@ function initRadarFeed() {
     // Other inputs change triggers
     const listeners = [sourceFilter, scoreFilter, dateFilter, arxivCatFilter, showIgnoredFilter];
     const sortBySelect = document.getElementById('sortBySelect');
+    const sortOrderSelect = document.getElementById('sortOrderSelect');
     if (sortBySelect) listeners.push(sortBySelect);
+    if (sortOrderSelect) listeners.push(sortOrderSelect);
 
     listeners.forEach(el => {
         if (el) el.addEventListener('change', fetchItems);
@@ -114,6 +120,7 @@ function initRadarFeed() {
         arxivCatFilter.value = '';
         showIgnoredFilter.checked = false;
         if (sortBySelect) sortBySelect.value = 'date';
+        if (sortOrderSelect) sortOrderSelect.value = 'desc';
         document.querySelectorAll('input[name="category"]').forEach(cb => cb.checked = false);
         fetchItems();
     });

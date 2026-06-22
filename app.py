@@ -441,6 +441,15 @@ def api_items():
     saved_only = request.args.get('saved_only', 'false') == 'true'
     show_ignored = request.args.get('show_ignored', 'false') == 'true'
     sort_by = request.args.get('sort_by', 'date') # 'date' or 'score'
+    sort_order = request.args.get('sort_order', 'desc') # 'desc' or 'asc'
+    
+    # Ensure inputs are whitelist-valid to prevent syntax/SQL injection
+    if sort_by not in ['date', 'score']:
+        sort_by = 'date'
+    if sort_order not in ['desc', 'asc']:
+        sort_order = 'desc'
+        
+    order_direction = "DESC" if sort_order == 'desc' else "ASC"
     
     # Classifications filters
     categories_filter = request.args.getlist('category') # list of classifications
@@ -493,9 +502,9 @@ def api_items():
             params.append(f'%"{cat}"%')
             
     if sort_by == 'score':
-        query += " ORDER BY signal_score DESC, published_date DESC, id DESC LIMIT 200"
+        query += f" ORDER BY signal_score {order_direction}, published_date DESC, id DESC LIMIT 200"
     else:
-        query += " ORDER BY published_date DESC, signal_score DESC, id DESC LIMIT 200"
+        query += f" ORDER BY published_date {order_direction}, signal_score DESC, id DESC LIMIT 200"
     
     rows = conn.execute(query, params).fetchall()
     
