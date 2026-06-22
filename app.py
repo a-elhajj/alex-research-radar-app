@@ -382,6 +382,7 @@ def fetch_feeds_task():
                 success_count += 1
             
             # Update health
+            now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             conn.execute('''
                 INSERT INTO feed_health (url, name, last_status, last_success_at, error_message)
                 VALUES (?, ?, 'success', ?, NULL)
@@ -389,7 +390,7 @@ def fetch_feeds_task():
                     last_status='success',
                     last_success_at=?,
                     error_message=NULL
-            ''', (url, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            ''', (url, name, now_str, now_str))
             
         except Exception as e:
             # Log failure in DB
