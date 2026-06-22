@@ -6,6 +6,7 @@ import threading
 import json
 import requests
 import feedparser
+import email.utils
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 
@@ -43,6 +44,49 @@ TIER_3_KEYWORDS = [
     r'\bmachine learning\b', r'\bdeep learning\b', r'\bdataset\b', r'\bneural network\b', 
     r'\boptimization\b', r'\bcloud\b', r'\bapi\b', r'\bdatabase\b', r'\banalytics\b'
 ]
+
+def normalize_date(date_str):
+    if not date_str:
+        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    date_str = date_str.strip()
+    
+    # Try ISO format
+    try:
+        clean_str = date_str.replace("Z", "+00:00")
+        dt = datetime.datetime.fromisoformat(clean_str)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+        
+    # Try RFC 2822
+    try:
+        dt = email.utils.parsedate_to_datetime(date_str)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+        
+    # Try custom datetime formats
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d", "%Y/%m/%d %H:%M:%S", "%Y/%m/%d"):
+        try:
+            dt = datetime.datetime.strptime(date_str, fmt)
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            pass
+
+    # Try substring match
+    try:
+        dt = datetime.datetime.strptime(date_str[:19], "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+    try:
+        dt = datetime.datetime.strptime(date_str[:10], "%Y-%m-%d")
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -298,7 +342,7 @@ def fetch_feeds_task():
                     cats = entry.categories
                 categories_str = json.dumps(cats)
                 
-                # Published Date - parse to standard ISO format using published_parsed
+                # Published Date - parse to standard ISO format using published_parsed or fallbacks
                 pub_date = None
                 if "published_parsed" in entry and entry.published_parsed:
                     try:
@@ -306,21 +350,15 @@ def fetch_feeds_task():
                         pub_date = dt.strftime("%Y-%m-%d %H:%M:%S")
                     except:
                         pass
+                if not pub_date and "updated_parsed" in entry and entry.updated_parsed:
+                    try:
+                        dt = datetime.datetime(*entry.updated_parsed[:6])
+                        pub_date = dt.strftime("%Y-%m-%d %H:%M:%S")
+                    except:
+                        pass
                 if not pub_date:
-                    # Fallback to updated_parsed if available
-                    if "updated_parsed" in entry and entry.updated_parsed:
-                        try:
-                            dt = datetime.datetime(*entry.updated_parsed[:6])
-                            pub_date = dt.strftime("%Y-%m-%d %H:%M:%S")
-                        except:
-                            pass
-                if not pub_date:
-                    # Raw parse fallback if struct parsing failed
                     raw_pub = entry.get("published", "") or entry.get("updated", "") or entry.get("pubDate", "")
-                    if raw_pub:
-                        pub_date = raw_pub
-                    else:
-                        pub_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    pub_date = normalize_date(raw_pub)
                 
                 fetched_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
